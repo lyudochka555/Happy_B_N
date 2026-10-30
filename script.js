@@ -3,7 +3,7 @@
    ============================================================ */
 (function initBgPetals() {
   const container = document.getElementById('bgPetals');
-  const emojis = ['☁️', '🦋', '✿', '❀', '☁', '✦', '💜','🎀'];
+  const emojis = ['☁️', '✿', '❀', '☁', '✦', '✧', '❋', '✺', '✹', '✵', '⋆', '⁕', '❃', '❁'];
   for (let i = 0; i < 24; i++) {
     const el = document.createElement('div');
     el.className = 'bg-petal';
