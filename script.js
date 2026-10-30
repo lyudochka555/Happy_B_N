@@ -188,7 +188,7 @@ window.launchFireworks = function () {
 };
 
 /* ============================================================
-   4. ИГРА: ПОЙМАЙ ЦВЕТОК
+   4. ИГРА: ПОЙМАЙ ЦВЕТОК (СООБЩЕНИЕ О КАКТУСЕ ВНУТРИ ИГРЫ)
    ============================================================ */
 (function initGame() {
   const area = document.getElementById('gameArea');
@@ -201,7 +201,6 @@ window.launchFireworks = function () {
   let items = [], gameLoopId, spawnInterval, timerInterval;
   let basketX = 50;
 
-    // Только цветы, много красных оттенков
   const goodEmojis = ['🌹', '🌺', '🌷', '🌸', '🏵️', '🌻', '🌼', '💐'];
   const badEmoji = '🌵';
 
@@ -212,25 +211,14 @@ window.launchFireworks = function () {
     if (e.touches) clientX = e.touches[0].clientX;
     
     let x = clientX - rect.left;
-    basketX = Math.max(10, Math.min(90, (x / rect.width) * 100));
+    basketX = Math.max(5, Math.min(95, (x / rect.width) * 100));
     basket.style.left = basketX + '%';
   }
 
-    area.addEventListener('mousemove', moveBasket);
-  
-  let touchStartY = 0;
-  area.addEventListener('touchstart', (e) => {
-    touchStartY = e.touches[0].clientY;
-  }, { passive: true });
-
+  area.addEventListener('mousemove', moveBasket);
   area.addEventListener('touchmove', (e) => { 
-    const touchY = e.touches[0].clientY;
-    // Если палец двигается вбок (по горизонтали), двигаем корзину
-    if (Math.abs(touchY - touchStartY) < 15) {
-      e.preventDefault(); 
-      moveBasket(e); 
-    }
-  }, { passive: false });
+    moveBasket(e); 
+  }, { passive: true });
 
   function spawnItem() {
     if (!isPlaying) return;
@@ -249,10 +237,14 @@ window.launchFireworks = function () {
   }
 
   function updateGame() {
-    if (!isPlaying) return;
+    if (!isPlaying) {
+      cancelAnimationFrame(gameLoopId);
+      return;
+    }
 
-    const isTouch = window.matchMedia('(pointer: coarse)').matches;
-    const hitZone = isTouch ? 22 : 15;
+        const isTouch = window.matchMedia('(pointer: coarse)').matches;
+    // Уменьшили зону: 12% для телефона (было 25%), 8% для мышки (было 15%)
+    const hitZone = isTouch ? 12 : 8; 
 
     for (let i = items.length - 1; i >= 0; i--) {
       const item = items[i];
@@ -260,19 +252,69 @@ window.launchFireworks = function () {
       item.el.style.top = item.y + 'px';
 
       const areaH = area.offsetHeight;
+      
       if (item.y > areaH - 80 && item.y < areaH) {
         if (Math.abs(item.x - basketX) < hitZone) {
+          
+          // ЕСЛИ ПОЙМАЛИ КАКТУС
           if (item.isBad) {
             score = Math.max(0, score - 5);
-            showToast('🌵 Ой! Кактус! -5');
+            scoreEl.textContent = `Счёт: ${score}`;
+
+            // Создаем всплывающее сообщение прямо ВНУТРИ игрового поля
+            const msgEl = document.createElement('div');
+            msgEl.textContent = '🌵 -5';
+            msgEl.style.position = 'absolute';
+            msgEl.style.left = item.x + '%';
+            msgEl.style.top = (item.y - 20) + 'px';
+            msgEl.style.transform = 'translateX(-50%)';
+            msgEl.style.color = '#ef4444';
+            msgEl.style.fontWeight = 'bold';
+            msgEl.style.fontSize = '1.1rem';
+            msgEl.style.pointerEvents = 'none';
+            msgEl.style.transition = 'all 0.6s ease-out';
+            msgEl.style.zIndex = '20';
+            area.appendChild(msgEl);
+
+            // Анимация: улетает вверх и растворяется
+            setTimeout(() => {
+              msgEl.style.top = (item.y - 60) + 'px';
+              msgEl.style.opacity = '0';
+            }, 10);
+            setTimeout(() => msgEl.remove(), 600);
+            
           } else {
+            // ЕСЛИ ПОЙМАЛИ ЦВЕТОК
             score += 10;
+            scoreEl.textContent = `Счёт: ${score}`;
+            
+            // Всплывающее сообщение +10
+            const msgEl = document.createElement('div');
+            msgEl.textContent = '+10';
+            msgEl.style.position = 'absolute';
+            msgEl.style.left = item.x + '%';
+            msgEl.style.top = (item.y - 20) + 'px';
+            msgEl.style.transform = 'translateX(-50%)';
+            msgEl.style.color = '#a855f7';
+            msgEl.style.fontWeight = 'bold';
+            msgEl.style.fontSize = '1.1rem';
+            msgEl.style.pointerEvents = 'none';
+            msgEl.style.transition = 'all 0.6s ease-out';
+            msgEl.style.zIndex = '20';
+            area.appendChild(msgEl);
+
+            setTimeout(() => {
+              msgEl.style.top = (item.y - 60) + 'px';
+              msgEl.style.opacity = '0';
+            }, 10);
+            setTimeout(() => msgEl.remove(), 600);
+
             if (Math.random() < 0.3) {
               const rect = area.getBoundingClientRect();
               window.launchConfetti(15, rect.left + (item.x/100)*rect.width, rect.top + item.y);
             }
           }
-          scoreEl.textContent = `Счёт: ${score}`;
+          
           item.el.remove();
           items.splice(i, 1);
           continue;
@@ -284,10 +326,17 @@ window.launchFireworks = function () {
         items.splice(i, 1);
       }
     }
-    gameLoopId = requestAnimationFrame(updateGame);
+    
+    if (isPlaying) {
+      gameLoopId = requestAnimationFrame(updateGame);
+    }
   }
 
   function startGame() {
+    if (gameLoopId) cancelAnimationFrame(gameLoopId);
+    if (spawnInterval) clearInterval(spawnInterval);
+    if (timerInterval) clearInterval(timerInterval);
+    
     score = 0; timeLeft = 15; isPlaying = true;
     scoreEl.textContent = `Счёт: ${score}`;
     timeEl.textContent = `Время: ${timeLeft}с`;
@@ -303,20 +352,20 @@ window.launchFireworks = function () {
       if (timeLeft <= 0) endGame();
     }, 1000);
 
-    updateGame();
+    gameLoopId = requestAnimationFrame(updateGame);
   }
 
   function endGame() {
-    isPlaying = false;
+    isPlaying = false; 
     clearInterval(spawnInterval);
     clearInterval(timerInterval);
-    cancelAnimationFrame(gameLoopId);
+    if (gameLoopId) cancelAnimationFrame(gameLoopId); 
     items.forEach(i => i.el.remove());
     items = [];
     
     let msg = '';
     if (score >= 120) msg = '🏆 Блестяще! Пусть и в жизни всё будет так же легко и точно в цель!';
-    else if (score >= 70) msg = '🌸 Отличный результат!';
+    else if (score >= 80) msg = '🌸 Отличный результат!';
     else if (score >= 30) msg = '🌷 Неплохо! Ещё немного тренировки — и будет идеально.';
     else msg = '🌼 Ничего страшного, главное — веселье!';
 
