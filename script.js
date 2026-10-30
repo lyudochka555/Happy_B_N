@@ -216,8 +216,21 @@ window.launchFireworks = function () {
     basket.style.left = basketX + '%';
   }
 
-  area.addEventListener('mousemove', moveBasket);
-  area.addEventListener('touchmove', (e) => { e.preventDefault(); moveBasket(e); }, { passive: false });
+    area.addEventListener('mousemove', moveBasket);
+  
+  let touchStartY = 0;
+  area.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  area.addEventListener('touchmove', (e) => { 
+    const touchY = e.touches[0].clientY;
+    // Если палец двигается вбок (по горизонтали), двигаем корзину
+    if (Math.abs(touchY - touchStartY) < 15) {
+      e.preventDefault(); 
+      moveBasket(e); 
+    }
+  }, { passive: false });
 
   function spawnItem() {
     if (!isPlaying) return;
@@ -413,5 +426,102 @@ document.getElementById('nameTrigger').addEventListener('click', (e) => {
         if (v !== video) v.pause();
       });
     });
+  });
+})();
+
+(function initMood() {
+  const buttons = document.querySelectorAll('.mood-btn');
+  if (!buttons.length) return;
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Убираем класс active у всех
+      buttons.forEach(b => b.classList.remove('active'));
+      // Добавляем нажатой
+      btn.classList.add('active');
+      
+      // Меняем класс на body
+      const mood = btn.dataset.mood;
+      document.body.className = ''; // сбрасываем старые
+      document.body.classList.add(`mood-${mood}`);
+      
+      // Небольшой взрыв конфетти для радости
+      if (window.launchConfetti) {
+        window.launchConfetti(30);
+      }
+    });
+  });
+})();
+/* ============================================================
+   12. ВИРТУАЛЬНЫЙ КОТИК
+   ============================================================ */
+(function initVirtualPet() {
+  const cat = document.getElementById('petCat');
+  const speech = document.getElementById('petSpeech');
+  const modal = document.getElementById('petModal');
+  const closeBtn = document.getElementById('closePetModal');
+  
+  if (!cat) return;
+
+  let clickCount = 0;
+  let speechTimeout;
+
+  const phrases = [
+    'Мяу! 🐾',
+    'Мурр 💜',
+    'Погладь ещё! ✨',
+    'С днём рождения! 🎂'
+  ];
+
+  cat.addEventListener('click', () => {
+    clickCount++;
+
+    // Показываем случайную фразу
+    const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+    speech.textContent = randomPhrase;
+    speech.classList.add('show');
+
+    clearTimeout(speechTimeout);
+    speechTimeout = setTimeout(() => {
+      speech.classList.remove('show');
+    }, 2000);
+
+    // Прыжок котика
+    cat.style.transform = 'translateY(-15px) scale(1.1)';
+    setTimeout(() => {
+      cat.style.transform = '';
+    }, 200);
+
+    // Немного конфетти при клике
+    if (window.launchConfetti) {
+      const rect = cat.getBoundingClientRect();
+      window.launchConfetti(5, rect.left + rect.width / 2, rect.top);
+    }
+
+    // Если затискали (5 раз)
+    if (clickCount >= 5) {
+      cat.style.display = 'none'; // Котик убегает
+      speech.classList.remove('show');
+      
+      // Взрыв конфетти на весь экран
+      if (window.launchConfetti) {
+        window.launchConfetti(150);
+      }
+      
+      // Показываем записку
+      setTimeout(() => {
+        modal.classList.add('show');
+      }, 500);
+    }
+  });
+
+  // Закрываем записку
+  closeBtn.addEventListener('click', () => {
+    modal.classList.remove('show');
+    // Через пару секунд возвращаем котика, чтобы можно было играть снова
+    setTimeout(() => {
+      cat.style.display = 'block';
+      clickCount = 0; // Сбрасываем счетчик
+    }, 1000);
   });
 })();
