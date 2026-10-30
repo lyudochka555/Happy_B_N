@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌸Happy Birthday🌸</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Фон из лепестков -->
+<div class="bg-petals" id="bgPetals"></div>
+
+<!-- Конфетти -->
+<canvas id="confetti-canvas"></canvas>
+
+<div class="wrap">
+
+  <!-- Заголовок -->
+  <header>
+    <div class="badge">25 лет · 2026</div>
+    <h1>
+      С днём рождения,
+      <span class="name" id="nameTrigger">Настя</span>
+      <span class="age">🎀</span>
+    </h1>
+    <p class="subtitle">Пусть этот год принесёт море крутых моментов, ярких эмоций и исполнения желаний!</p>
+    <div class="header-flowers">🌸💗🥰</div>
+  </header>
+
+  <!-- Поздравление -->
+  <section class="card reveal">
+    <h2><span class="emoji">💌</span></h2>
+    <p>
+      Настя, с днём рождения! Пусть каждый день будет наполнен радостью, смехом и любовью. 
+      Желаю тебе счастья, крепкого здоровья! ✨
+      <br><br>
+      Пусть любое дело, за которое ты берешься, приносило тебе настоящее удовольствие. 💙
+    </p>
+  </section>
+
+  <!-- МИНИ-ИГРА: Поймай цветок (но не кактус) -->
+  <section class="card reveal">
+    <h2><span class="emoji">🕹️</span> Поймай цветы — но не кактусы!</h2>
+    
+    <div class="game-wrapper">
+      <div class="game-hud">
+        <span id="gameScore">Счёт: 0</span>
+        <span id="gameTime">Время: 15с</span>
+      </div>
+      <div class="game-area" id="gameArea">
+        <div class="game-basket" id="gameBasket">🧺</div>
+        <div class="game-start-overlay" id="gameStartOverlay">
+          <button class="btn" id="gameStartBtn">Играть 🌸</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Кнопка конфетти / САЛЮТ -->
+  <section class="card reveal center">
+    <h2><span class="emoji">🎊</span> Нажимай на кнопку</h2>
+    <p class="mb-24">и на весь экран запустится настоящий салют!</p>
+    <button class="btn btn-large" id="partyBtn">Запустить салют 🎇</button>
+  </section>
+
+  <!-- КАРУСЕЛЬ ВИДЕО -->
+  <section class="card reveal">
+
+    <p class="mb-20">Немного прикольных видосов. 😊</p>
+    
+    <div class="video-carousel-wrapper">
+      <button class="video-arrow prev" id="videoPrev">❮</button>
+      <div class="video-carousel" id="videoCarousel">
+        <div class="video-card">
+          <video controls playsinline preload="metadata">
+            <source src="video/2.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="video-card">
+          <video controls playsinline preload="metadata">
+            <source src="video/4.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="video-card">
+          <video controls playsinline preload="metadata">
+            <source src="video/3.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="video-card">
+          <video controls playsinline preload="metadata">
+            <source src="video/1.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="video-card">
+          <video controls playsinline preload="metadata">
+            <source src="video/5.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="video-card">
+          <video controls playsinline preload="metadata">
+            <source src="video/11.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+      <button class="video-arrow next" id="videoNext">❯</button>
+    </div>
+  </section>
+
+  <footer>
+    Сделано с любовью для Насти <span class="heart">♥</span> 2026
+  </footer>
+</div>
+
+<!-- Тост -->
+<div class="toast" id="toast">🎉 Ура! Насте 25!</div>
+
+<script src="script.js"></script>
+</body>
+</html>
